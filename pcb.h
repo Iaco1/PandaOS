@@ -1,3 +1,5 @@
+#ifndef PCB_H
+#define PCB_H
 #include <list.h>
 #define MAXPROC 20
 
@@ -11,3 +13,11 @@ void initPcbs(){
     }
 }
 
+/*
+  Inserisce il PCB puntato da p nella lista dei PCB liberi pcbFree.
+*/
+void freePcbs(pcb_t *p){
+ list_add_tail(&p->p_next, &pcbFree_h);
+}
+
+#endif
