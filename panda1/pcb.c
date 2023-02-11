@@ -46,6 +46,7 @@ pcb_t *allocPcb(){
         //parent
         tmp->p_parent = NULL;
         //come gestisco p_list, p_child e p_sib?
+
         return tmp;
     }
 }
@@ -55,14 +56,14 @@ pcb_t *allocPcb(){
 */
 
 void  mkEmptyProcQ(pcb_t * p){
-    INIT_LIST_HEAD(&p); //inizializza la sentinella della lista, il resto è vuoto
+    INIT_LIST_HEAD(p); //inizializza la sentinella della lista, il resto è vuoto
 }
 
 /*
   Restituisce TRUE se la lista puntata da head è vuota, FALSE altrimenti.
 */
 int emptyProcQ(struct list_head *head){
-if(head->next == NULL && head->prev == NULL){
+if(list_empty(head)){
     return 1;
  } else {
     return 0;
@@ -74,17 +75,31 @@ if(head->next == NULL && head->prev == NULL){
 */
 
 void insertProcQ(struct list_head* head, pcb_t *p){
-   list_add_tail(&p->p_next, head);
+   list_add_tail(&p->p_list, head);
 }
 
 /*
-  Restituisce l’elemento di testa della coda dei processi da head, SENZA
-  RIMUOVERLO. Ritorna NULL se la coda non ha elementi.
+  Restituisce l’elemento di testa della coda dei processi da head, SENZA RIMUOVERLO. Ritorna NULL se 
+  la coda non ha elementi.
 */
 
 pcb_t headProcQ(struct list_head* head){
-    pcb_t *tmp = container_of(&head->next, pcb_t, p_next);
-    return tmp;
+    if(list_empty(head)){ //possibile miglioria: usare emptyProcQ
+      return;
+    } else {
+        pcb_t *tmp = container_of(head, pcb_t, p_list);
+        return *tmp;
+    }
+
 }
+/*
+ Rimuove il primo elemento dalla coda dei processi puntata da head. Ritorna NULL se la coda è vuota.
+  Altrimenti ritorna il puntatore all’elemento rimosso dalla lista.
+*/
+
+pcb_t* removeProcQ(struct list_head* head){
+  
+}
+
  
 
