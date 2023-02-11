@@ -4,12 +4,12 @@
 void initPcbs(){
     INIT_LIST_HEAD(&pcbFree_h);
     for(int i = 0; i < MAXPROC; i++){
-        list_add_tail(&procp[i].p_next, &pcbFree_h);
+        list_add_tail(&procp[i].p_next, pcbFree_h);
     }
 }
 
 void freePcbs(pcb_t *p){
- list_add_tail(&p->p_next, &pcbFree_h);
+ list_add_tail(&p->p_next, pcbFree_h);
 }
 
 /*
@@ -38,3 +38,33 @@ pcb_t *allocPcb(){
         return tmp;
     }
 }
+
+/*
+  Crea una lista di PCB, inizializzandola come lista vuota.
+*/
+
+void  mkEmptyProcQ(pcb_t * p){
+    INIT_LIST_HEAD(&p); //inizializza la sentinella della lista, il resto è vuoto
+}
+
+/*
+  Restituisce TRUE se la lista puntata da head è vuota, FALSE altrimenti.
+*/
+int emptyProcQ(struct list_head *head){
+if(head->next == NULL && head->prev == NULL){
+    return 1;
+ } else {
+    return 0;
+ }
+}
+
+/*
+  Inserisce l’elemento puntato da p nella coda dei processi puntata da head.
+*/
+
+void insertProcQ(struct list_head* head, pcb_t *p){
+   list_add_tail(&p->p_next, head);
+}
+
+
+

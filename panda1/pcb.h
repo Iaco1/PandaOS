@@ -18,7 +18,9 @@ void freePcbs(pcb_t *p);
 */
 
 pcb_t *allocPcb();
-
+void  mkEmptyProcQ(pcb_t * p);
+int emptyProcQ(struct list_head *head);
+void insertProcQ(struct list_head* head, pcb* p);
 
 
 #endif /* pcb_h */
