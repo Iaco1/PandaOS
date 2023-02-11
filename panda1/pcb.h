@@ -21,6 +21,6 @@ pcb_t *allocPcb();
 void  mkEmptyProcQ(pcb_t * p);
 int emptyProcQ(struct list_head *head);
 void insertProcQ(struct list_head* head, pcb* p);
-
+pcb_t headProcQ(struct list_head* head);
 
 #endif /* pcb_h */

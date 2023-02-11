@@ -66,5 +66,14 @@ void insertProcQ(struct list_head* head, pcb_t *p){
    list_add_tail(&p->p_next, head);
 }
 
+/*
+  Restituisce l’elemento di testa della coda dei processi da head, SENZA
+  RIMUOVERLO. Ritorna NULL se la coda non ha elementi.
+*/
 
+pcb_t headProcQ(struct list_head* head){
+    pcb_t *tmp = container_of(&head->next, pcb_t, p_next);
+    return tmp;
+}
+ 
 
