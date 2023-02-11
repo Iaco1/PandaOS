@@ -1,15 +1,29 @@
-#include <pcb.h>
-#include <list.h>
+#include "pcb.h"
+#include "list.h"
+#include "pandos_types.h"
+#include "pandos_const.h"
+#include "container_of.h"
+
+static struct list_head pcbFree_h;
+static pcb_t pcbFree_table[MAX_PROC];
+
+/*
+ Funzione che inizializza la lista pcbFree in modo da contenere tutti gli elementi della pcbFree_table.
+*/
 
 void initPcbs(){
-    INIT_LIST_HEAD(&pcbFree_h);
+    INIT_LIST_HEAD(&pcbFree_h); //inizializzo la nuova lista come vuota mettendo solo l'elemento sentinella
     for(int i = 0; i < MAXPROC; i++){
-        list_add_tail(&procp[i].p_next, pcbFree_h);
+        list_add_tail(&pcbFree_table[i].p_list, &pcbFree_h); //inserisco tutti gli elementi nella coda della 
+        //nuova lista
     }
 }
+/*
+  Inserisce il PCB puntato da p nella lista dei PCB liberi pcbFree.
+*/
 
 void freePcbs(pcb_t *p){
- list_add_tail(&p->p_next, pcbFree_h);
+ list_add_tail(&p->p_list, &pcbFree_h);
 }
 
 /*
@@ -18,7 +32,7 @@ void freePcbs(pcb_t *p){
 */
 
 pcb_t *allocPcb(){
-    if(list_empty(&pcbfree_h)){
+    if(list_empty(&pcbFree_h)){
         return NULL;
     } else {
         /* Rimuovere un elemento da pcbfree_h, salvarlo e poi resistuirlo */
@@ -27,14 +41,11 @@ pcb_t *allocPcb(){
         //container_of prende: 1) l'elemento di cui vogliamo avere il puntatore
         //2) il tipo 3)p_next è il nome della variabile del prossimo elemento della lista
         // e poi va rimosso l'elemento dalla lista
-        pcb_t *tmp = container_of(&pcbFree_h.next, pcb_t, p_next );
+        pcb_t *tmp = container_of(&pcbFree_h.next, pcb_t, p_list);
         list_del(&pcbFree_h.next); //stacca l'elemento dalla lista, restano da settare a NULL i puntatori di:
-        //parent, child e sib
-        tmp->p_prnt = NULL;
-        tmp->p_child = NULL;
-        tmp->p_sib = NULL;
-        tmp->p_next = NULL;
-        tmp->p_prev = NULL;  
+        //parent
+        tmp->p_parent = NULL;
+        //come gestisco p_list, p_child e p_sib?
         return tmp;
     }
 }

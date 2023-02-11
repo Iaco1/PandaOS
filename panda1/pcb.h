@@ -1,26 +1,18 @@
 
 #ifndef pcb_h
 #define pcb_h
-#include <list.h>
+#include "pandos_types.h"
+#include "pandos_const.h"
 
-/*
- Funzione che inizializza la lista pcbFree in modo da contenere tutti gli elementi della pcbFree_table.
-*/
+#define MAX_PROC 20
+
+
 void initPcbs();
-
-/*
-  Inserisce il PCB puntato da p nella lista dei PCB liberi pcbFree.
-*/
 void freePcbs(pcb_t *p);
-/*
-  Restituisce NULL se la pcbFree_h è vuota, sennò rimuove un elemento dalla pcbFree_h, inizializza tutti i campi a
-  NULL e restituisce l'elemento rimosso.
-*/
-
 pcb_t *allocPcb();
 void  mkEmptyProcQ(pcb_t * p);
 int emptyProcQ(struct list_head *head);
-void insertProcQ(struct list_head* head, pcb* p);
+void insertProcQ(struct list_head* head, pcb_t *p);
 pcb_t headProcQ(struct list_head* head);
 
 #endif /* pcb_h */
