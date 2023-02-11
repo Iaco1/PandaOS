@@ -79,13 +79,13 @@ void insertProcQ(struct list_head* head, pcb_t *p){
   la coda non ha elementi.
 */
 
-pcb_t headProcQ(struct list_head* head){
+pcb_t* headProcQ(struct list_head* head){
     if(list_empty(head)){ //possibile miglioria: usare emptyProcQ
-      return; 
+      return NULL; 
     } else {
         pcb_t *tmp = container_of(head->next, pcb_t, p_list); //a differenza di prima in questo caso basta passare
         //head->next dato che head è già un puntatore alla struttura
-        return *tmp;
+        return tmp;
     }
 
 }
