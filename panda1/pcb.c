@@ -5,14 +5,14 @@
 #include "container_of.h"
 
 static struct list_head pcbFree_h;
-static pcb_t pcbFree_table[MAX_PROC];
+static pcb_t pcbFree_table[MAXPROC];
 
 /*
  Funzione che inizializza la lista pcbFree in modo da contenere tutti gli elementi della pcbFree_table.
 */
 
 void initPcbs(){
-    INIT_LIST_HEAD(&pcbFree_h); //inizializzo la nuova lista come vuota mettendo solo l'elemento sentinella
+    INIT_LIST_HEAD(&pcbFree_h); //inizializzo la nuova lista aggiungendo solo l'elemento di testa
     for(int i = 0; i < MAXPROC; i++){
         list_add_tail(&pcbFree_table[i].p_list, &pcbFree_h); //inserisco tutti gli elementi nella coda della 
         //nuova lista
@@ -36,17 +36,13 @@ pcb_t *allocPcb(){
         return NULL;
     } else {
         /* Rimuovere un elemento da pcbfree_h, salvarlo e poi resistuirlo */
-        //list_del rimuove l'elemento dalla lista
-        //container_of ci permette di ottenere il puntatore, quindi va fatta prima la chiamata 'container_of'
-        //container_of prende: 1) l'elemento di cui vogliamo avere il puntatore
-        //2) il tipo 3)p_next è il nome della variabile del prossimo elemento della lista
-        // e poi va rimosso l'elemento dalla lista
-        pcb_t *tmp = container_of(&pcbFree_h.next, pcb_t, p_list);
+        //si prende pcbFree_h.next dato che pcbFree_h rappresenta la testa di tutta la lista, noi vogliamo il primo elemento utile
+        pcb_t *tmp = container_of(&pcbFree_h.next, pcb_t, p_list); 
         list_del(&pcbFree_h.next); //stacca l'elemento dalla lista, restano da settare a NULL i puntatori di:
-        //parent
+        //parent, child e sib.
+        INIT_LIST_HEAD(&tmp->p_child); //dato che si tratta di due struct list_head inizializzo due liste vuote
+        INIT_LIST_HEAD(&tmp->p_sib); //ovvero setto i puntatori next e prev a null
         tmp->p_parent = NULL;
-        //come gestisco p_list, p_child e p_sib?
-
         return tmp;
     }
 }
@@ -85,13 +81,15 @@ void insertProcQ(struct list_head* head, pcb_t *p){
 
 pcb_t headProcQ(struct list_head* head){
     if(list_empty(head)){ //possibile miglioria: usare emptyProcQ
-      return;
+      return; 
     } else {
-        pcb_t *tmp = container_of(head->next, pcb_t, p_list);
+        pcb_t *tmp = container_of(head->next, pcb_t, p_list); //a differenza di prima in questo caso basta passare
+        //head->next dato che head è già un puntatore alla struttura
         return *tmp;
     }
 
 }
+
 /*
  Rimuove il primo elemento dalla coda dei processi puntata da head. Ritorna NULL se la coda è vuota.
   Altrimenti ritorna il puntatore all’elemento rimosso dalla lista.
@@ -99,13 +97,32 @@ pcb_t headProcQ(struct list_head* head){
 
 pcb_t* removeProcQ(struct list_head* head){
   if(emptyProcQ(head)){
-    return;
+    return NULL;
   } else {
-    pcb_t* tmp = container_of(head->next, pcb_t, p_list);
+    pcb_t* tmp = container_of(head->next, pcb_t, p_list); //si potrebbe usare headProcQ
     list_del(tmp);
     return tmp;
   }
 }
+
+
+/*
+ Rimuove il PCB puntato da p dalla coda dei processi puntata da head. Se p non è presente nella coda, 
+ restituisce NULL. (NOTA: p può trovarsi in una posizione arbitraria della coda).
+*/
+pcb_t* outProcQ(struct list_head* head, pcb_t *p){
+struct list_head* tmp; //uso tmp come puntatore ausiliario per scorrere sulla mia lista
+list_for_each(tmp, head){
+  if(tmp == &p->p_list){ //se tmp e p puntanto alla stessa cosa allora p è nella cosa di processi puntata da head
+    list_del(tmp); //rimuovo quell'elemento
+    return p; 
+  }
+}
+return NULL;
+}
+
+
+
 
  
 
