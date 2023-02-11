@@ -87,7 +87,7 @@ pcb_t headProcQ(struct list_head* head){
     if(list_empty(head)){ //possibile miglioria: usare emptyProcQ
       return;
     } else {
-        pcb_t *tmp = container_of(head, pcb_t, p_list);
+        pcb_t *tmp = container_of(head->next, pcb_t, p_list);
         return *tmp;
     }
 
@@ -98,7 +98,13 @@ pcb_t headProcQ(struct list_head* head){
 */
 
 pcb_t* removeProcQ(struct list_head* head){
-  
+  if(emptyProcQ(head)){
+    return;
+  } else {
+    pcb_t* tmp = container_of(head->next, pcb_t, p_list);
+    list_del(tmp);
+    return tmp;
+  }
 }
 
  
