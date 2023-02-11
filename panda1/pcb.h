@@ -17,6 +17,7 @@ void freePcbs(pcb_t *p);
   NULL e restituisce l'elemento rimosso.
 */
 
+pcb_t *allocPcb();
 
 
 
