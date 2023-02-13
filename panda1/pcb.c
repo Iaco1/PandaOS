@@ -22,7 +22,7 @@ void initPcbs(){
   Inserisce il PCB puntato da p nella lista dei PCB liberi pcbFree.
 */
 
-void freePcbs(pcb_t *p){
+void freePcb(pcb_t *p){
  list_add_tail(&p->p_list, &pcbFree_h);
 }
 
@@ -38,7 +38,7 @@ pcb_t *allocPcb(){
         /* Rimuovere un elemento da pcbfree_h, salvarlo e poi resistuirlo */
         //si prende pcbFree_h.next dato che pcbFree_h rappresenta la testa di tutta la lista, noi vogliamo il primo elemento utile
         pcb_t *tmp = container_of(&pcbFree_h.next, pcb_t, p_list); 
-        list_del(&pcbFree_h.next); //stacca l'elemento dalla lista, restano da settare a NULL i puntatori di:
+        list_del(pcbFree_h.next); //stacca l'elemento dalla lista, restano da settare a NULL i puntatori di:
         //parent, child e sib.
         INIT_LIST_HEAD(&tmp->p_child); //dato che si tratta di due struct list_head inizializzo due liste vuote
         INIT_LIST_HEAD(&tmp->p_sib); //ovvero setto i puntatori next e prev a null
@@ -51,8 +51,8 @@ pcb_t *allocPcb(){
   Crea una lista di PCB, inizializzandola come lista vuota.
 */
 
-void  mkEmptyProcQ(pcb_t * p){
-    INIT_LIST_HEAD(p); //inizializza la sentinella della lista, il resto è vuoto
+void  mkEmptyProcQ(struct list_head *head){
+    INIT_LIST_HEAD(&head); //inizializza la sentinella della lista, il resto è vuoto
 }
 
 /*
@@ -120,6 +120,7 @@ list_for_each(tmp, head){
 }
 return NULL;
 }
+
 
 
 
