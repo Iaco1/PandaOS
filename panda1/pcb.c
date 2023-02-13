@@ -52,7 +52,7 @@ pcb_t *allocPcb(){
 */
 
 void  mkEmptyProcQ(struct list_head *head){
-    INIT_LIST_HEAD(&head); //inizializza la sentinella della lista, il resto è vuoto
+    INIT_LIST_HEAD(head); //inizializza la sentinella della lista, il resto è vuoto
 }
 
 /*
@@ -121,9 +121,4 @@ list_for_each(tmp, head){
 return NULL;
 }
 
-
-
-
-
- 
 
