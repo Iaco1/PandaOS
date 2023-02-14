@@ -13,12 +13,11 @@ static void initNamespaces(){
         INIT_LIST_HEAD(&ns_Free_h[type]->n_link);
         INIT_LIST_HEAD(&ns_Active_h[type]->n_link);
 
-      for(int j = 0; j < MAXPROC; j++){
-        list_add_tail(&ns_Table[j].n_link, &ns_Free_h[type]->n_link);
-      }
-
+        for(int j = 0; j < MAXPROC; j++){
+            ns_Table[type][j].n_type=type;
+            list_add_tail(&ns_Table[type][j].n_link, &ns_Free_h[type]->n_link);
+        }
     }
-         
 }
 
 /*
