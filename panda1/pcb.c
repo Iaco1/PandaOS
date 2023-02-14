@@ -150,12 +150,40 @@ int emptyChild( pcb_t *p){
 void insertChild(pcb_t *prnt,pcb_t *p)
 {
  p->p_parent = prnt; //setto prnt come padre di p
- if(!emptyChild(&prnt->p_child)){ //se prnt ha almeno un figlio
-  pcb_t *child_1 = list_first_entry(&prnt->p_child, pcb_t, p_sib);
-  list_add_tail(&p->p_sib, &child_1->p_sib); //lo aggiungo ai fratelli (suppongo che se ci sono altri figli questi siano già considerati fratelli di child_1)
- }
  /*
-   Inserisco p_sib in prnt->p_child dato che voglio che p non perda i suoi fratelli.
+   Inserisco p_sib in prnt->p_child, mi basta fare questo dato che la funzione add_tail aggiornerà automanticamente i puntatori.
  */
  list_add_tail(&p->p_sib, &prnt->p_child); 
 }
+
+/*
+  Rimuove il primo figlio del PCB puntato da p. Se p non ha figli, restituisce NULL.
+*/
+
+pcb_t* removeChild(pcb_t *p){
+ if(emptyChild(&p->p_child)){
+  return NULL;
+ } else {
+  pcb_t *child_1 = list_first_entry(&p->p_child, pcb_t, p_sib);
+  list_del(&child_1->p_sib);
+  child_1->p_parent = NULL;
+  return child_1;
+ }
+}
+
+/*
+  Rimuove il PCB puntato da p dalla lista dei figli del padre. Se il PCB puntato da p non ha un padre, 
+  restituisce NULL, altrimenti restituisce l’elemento rimosso (cioè p). A differenza della removeChild, 
+  p può trovarsi in una posizione arbitraria (ossia non è necessariamente il primo figlio del padre).
+*/
+
+pcb_t *outChild(pcb_t* p){
+  if(p->p_parent == NULL){
+    return NULL;  //se p non ha un padre
+  }
+  list_del(&p->p_sib);
+  p->p_parent = NULL;  //senò come removechild solo che non devo trovare il primo elementto della lista
+  return p;
+}
+
+

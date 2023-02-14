@@ -138,14 +138,34 @@ int emptyChild( pcb_t *p){
 
 void insertChild(pcb_t *prnt,pcb_t *p){
  p->p_parent = prnt; //setto prnt come padre di p
- if(!emptyChild(&prnt->p_child)){ //se prnt ha almeno un figlio
-  pcb_t *child_1 = list_first_entry(&prnt->p_child, pcb_t, p_sib);
-  list_add_tail(&p->p_sib, &child_1->p_sib); //lo aggiungo ai fratelli (suppongo che se ci sono altri figli questi siano già considerati fratelli di child_1)
- }
  /*
-   Inserisco p_sib in prnt->p_child dato che voglio che p non perda i suoi fratelli.
+   Inserisco p_sib in prnt->p_child, mi basta fare questo dato che la funzione add_tail aggiornerà automanticamente i puntatori.
  */
  list_add_tail(&p->p_sib, &prnt->p_child); 
+}
+
+/*
+  Rimuove il primo figlio del PCB puntato da p. Se p non ha figli, restituisce NULL.
+*/
+
+pcb_t* removeChild(pcb_t *p){
+ if(emptyChild(&p->p_child)){
+  return NULL;
+ } else {
+  pcb_t *child_1 = list_first_entry(&p->p_child, pcb_t, p_sib);
+  list_del(&child_1->p_sib);
+  child_1->p_parent = NULL;
+  return child_1;
+ }
+}
+
+pcb_t *outChild(pcb_t* p){
+  if(p->p_parent == NULL){
+    return NULL;  //se p non ha un padre
+  }
+  list_del(&p->p_sib);
+  p->p_parent = NULL;  //senò come removechild solo che non devo trovare il primo elementto della lista
+  return p;
 }
 
 int main(void){
@@ -197,10 +217,11 @@ int main(void){
 
      printf("Tutti i test sono passati con successo\n"); 
 
-     pcb_t parent, child1, child2;
+     pcb_t parent, child1, child2, child3;
      INIT_LIST_HEAD(&parent.p_child);
      INIT_LIST_HEAD(&child1.p_child);
      INIT_LIST_HEAD(&child2.p_child);
+     INIT_LIST_HEAD(&child3.p_child);
 
     // check that parent has no children initially
     assert(emptyChild(&parent) == 1);
@@ -214,12 +235,39 @@ int main(void){
     assert(list_is_last(&child1.p_sib, &parent.p_child) == 0);
     assert(list_is_last(&child2.p_sib, &parent.p_child) == 1); //check if parent's child list is succesfully updated
     assert(child1.p_sib.next == &child2.p_sib);
-    assert(child2.p_sib.prev == &child1.p_sib); //check if the two children are set as siblings
+    assert(child2.p_sib.prev == &child1.p_sib); //check if the two childs are set as siblings
+    
+    insertChild(&parent, &child3);
+    // remove the first child process from the parent
+    pcb_t *removed_child = removeChild(&parent);
+    // check that the removed child is child1
+    assert(removed_child == &child1);
 
+    // check that child1 is no longer a child of the parent
+    assert(emptyChild(&parent.p_child) == 0);
+    assert(list_first_entry(&parent.p_child, pcb_t, p_sib) == &child2); //assumiamo che quella dei siblings sia 
+    //una lista monolinkata (come mostrato sul libro)
+    assert(list_empty(&child1.p_sib) == 1);   
+    assert(list_is_last(&child2.p_sib, &parent.p_child) == 0); 
+    
+    pcb_t child4;
+    INIT_LIST_HEAD(&child4.p_child);
+    insertChild(&parent, &child4);
+
+    pcb_t *removeChild_2 = outChild(&child3);
+
+    // Check if child3 is removed from the parent's child list
+    assert(list_empty(&child3.p_sib) == 1); //check if child3 still has siblings
+    assert(list_is_head(&child2.p_sib, &parent.p_child)==1);
+    assert(list_is_tail(&child4.p_sib, &parent.p_child)==1);
+    
+    
+    // Check if removed_child is child3
+    assert(removed_child == &child3);
 
     printf("Ok, test passati");
 
-     return 0;
+    return 0;
 }
     
 
