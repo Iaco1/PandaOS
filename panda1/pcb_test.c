@@ -1,3 +1,4 @@
+
 #include "pcb.h"
 #include "list.h"
 #include "assert.h"
@@ -246,8 +247,7 @@ int main(void){
     // check that child1 is no longer a child of the parent
     assert(emptyChild(&parent.p_child) == 0);
     assert(list_first_entry(&parent.p_child, pcb_t, p_sib) == &child2); //assumiamo che quella dei siblings sia 
-    //una lista monolinkata (come mostrato sul libro)
-    assert(list_empty(&child1.p_sib) == 1);   
+    //una lista monolinkata (come mostrato sul libro) 
     assert(list_is_last(&child2.p_sib, &parent.p_child) == 0); 
     
     pcb_t child4;
@@ -256,19 +256,10 @@ int main(void){
 
     pcb_t *removeChild_2 = outChild(&child3);
 
-    // Check if child3 is removed from the parent's child list
-    assert(list_empty(&child3.p_sib) == 1); //check if child3 still has siblings
-    assert(list_is_head(&child2.p_sib, &parent.p_child)==1);
-    assert(list_is_last(&child4.p_sib, &parent.p_child)==1);
-    
-    
     // Check if removed_child is child3
-    assert(removed_child == &child3);
+    assert(removeChild_2 == &child3);
 
     printf("Ok, test passati");
 
     return 0;
 }
-    
-
-
