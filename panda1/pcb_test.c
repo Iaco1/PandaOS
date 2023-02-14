@@ -4,6 +4,7 @@
 #include "pandos_types.h"
 #include "pandos_const.h"
 #include "container_of.h"
+#include <stdio.h>
 
 static struct list_head pcbFree_h;
 static pcb_t pcbFree_table[MAXPROC];
@@ -122,14 +123,34 @@ list_for_each(tmp, head){
 return NULL;
 }
 
+int emptyChild( pcb_t *p){
+  if(list_empty(&p->p_child)){
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 /*
-  Funzioni necessarie per i test.
+ Inserisce il PCB puntato da p come figlio del PCB puntato da prnt.
 */
 
 
+void insertChild(pcb_t *prnt,pcb_t *p){
+ p->p_parent = prnt; //setto prnt come padre di p
+ if(!emptyChild(&prnt->p_child)){ //se prnt ha almeno un figlio
+  pcb_t *child_1 = list_first_entry(&prnt->p_child, pcb_t, p_sib);
+  list_add_tail(&p->p_sib, &child_1->p_sib); //lo aggiungo ai fratelli (suppongo che se ci sono altri figli questi siano già considerati fratelli di child_1)
+ }
+ /*
+   Inserisco p_sib in prnt->p_child dato che voglio che p non perda i suoi fratelli.
+ */
+ list_add_tail(&p->p_sib, &prnt->p_child); 
+}
 
-int main(){
-    initPcbs();
+int main(void){
+   
+   initPcbs();
 
     pcb_t *first_pcb = allocPcb();
     if(first_pcb == NULL){
@@ -174,6 +195,32 @@ int main(){
      outProcQ(&test_queue, &p3);
      assert(headProcQ(&test_queue) == &p2); // &p3 deve essere rimosso dalla coda, la testa deve ancora essere &p2
 
-     printf("Tutti i test sono passati con successo\n");
+     printf("Tutti i test sono passati con successo\n"); 
+
+     pcb_t parent, child1, child2;
+     INIT_LIST_HEAD(&parent.p_child);
+     INIT_LIST_HEAD(&child1.p_child);
+     INIT_LIST_HEAD(&child2.p_child);
+
+    // check that parent has no children initially
+    assert(emptyChild(&parent) == 1);
+
+    // insert child1 and check that parent now has a child
+    insertChild(&parent, &child1);
+    assert(emptyChild(&parent) == 0);
+  
+    // insert child2 and check that both children are siblings
+    insertChild(&parent, &child2);
+    assert(list_is_last(&child1.p_sib, &parent.p_child) == 0);
+    assert(list_is_last(&child2.p_sib, &parent.p_child) == 1); //check if parent's child list is succesfully updated
+    assert(child1.p_sib.next == &child2.p_sib);
+    assert(child2.p_sib.prev == &child1.p_sib); //check if the two childs are set as siblings
+
+
+    printf("Ok, test passati");
+
      return 0;
 }
+    
+
+
