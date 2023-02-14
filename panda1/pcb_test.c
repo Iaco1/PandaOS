@@ -259,7 +259,7 @@ int main(void){
     // Check if child3 is removed from the parent's child list
     assert(list_empty(&child3.p_sib) == 1); //check if child3 still has siblings
     assert(list_is_head(&child2.p_sib, &parent.p_child)==1);
-    assert(list_is_tail(&child4.p_sib, &parent.p_child)==1);
+    assert(list_is_last(&child4.p_sib, &parent.p_child)==1);
     
     
     // Check if removed_child is child3
