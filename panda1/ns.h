@@ -8,8 +8,8 @@ static nsd_t ns_Table[NS_TYPE_MAX][MAXPROC];
 //alternativamente, static nsd_t* ns_Table[NS_TYPE_MAX]={ PID_nsd[MAX_PROC] } ?
 
 /*array of lists; each index re*/
-static nsd_t* ns_Free_h[NS_TYPE_MAX];
-static nsd_t* ns_Active_h[NS_TYPE_MAX];
+static struct list_head ns_Free_h[NS_TYPE_MAX];
+static struct list_head ns_Active_h[NS_TYPE_MAX];
 
 /*each new namespace should be added to the ns_Table array in their own position*/
 //static nsd_t PID_nsd[MAXPROC];
