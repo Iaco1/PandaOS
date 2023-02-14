@@ -214,7 +214,7 @@ int main(void){
     assert(list_is_last(&child1.p_sib, &parent.p_child) == 0);
     assert(list_is_last(&child2.p_sib, &parent.p_child) == 1); //check if parent's child list is succesfully updated
     assert(child1.p_sib.next == &child2.p_sib);
-    assert(child2.p_sib.prev == &child1.p_sib); //check if the two childs are set as siblings
+    assert(child2.p_sib.prev == &child1.p_sib); //check if the two children are set as siblings
 
 
     printf("Ok, test passati");
