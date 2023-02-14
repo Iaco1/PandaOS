@@ -169,6 +169,20 @@ pcb_t *outChild(pcb_t* p){
   return p;
 }
 
+int count_children(pcb_t* p){
+  if(emptyChild(&p->p_child)){
+    return 0;
+  } else {
+     int count = 0;
+    struct list_head *child;
+    list_for_each(child, &p->p_child) {
+        count++;
+    }
+    return count;
+  }
+
+}
+
 int main(void){
    
    initPcbs();
@@ -218,11 +232,12 @@ int main(void){
 
      printf("Tutti i test sono passati con successo\n"); 
 
-     pcb_t parent, child1, child2, child3;
+     pcb_t parent, child1, child2, child3, child5;
      INIT_LIST_HEAD(&parent.p_child);
      INIT_LIST_HEAD(&child1.p_child);
      INIT_LIST_HEAD(&child2.p_child);
      INIT_LIST_HEAD(&child3.p_child);
+     INIT_LIST_HEAD(&child5.p_child);
 
     // check that parent has no children initially
     assert(emptyChild(&parent) == 1);
@@ -239,6 +254,9 @@ int main(void){
     assert(child2.p_sib.prev == &child1.p_sib); //check if the two childs are set as siblings
     
     insertChild(&parent, &child3);
+    insertChild(&parent, &child5);
+    int count = count_children(&parent);
+    assert(count == 4);
     // remove the first child process from the parent
     pcb_t *removed_child = removeChild(&parent);
     // check that the removed child is child1

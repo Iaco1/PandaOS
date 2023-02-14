@@ -46,6 +46,8 @@ pcb_t *allocPcb()
         INIT_LIST_HEAD(&tmp->p_child); //dato che si tratta di due struct list_head inizializzo due liste vuote
         INIT_LIST_HEAD(&tmp->p_sib); //ovvero setto i puntatori next e prev a null
         tmp->p_parent = NULL;
+        tmp->p_time = 0;
+        tmp->p_semAdd = NULL;
         return tmp;
     }
 }
@@ -186,4 +188,20 @@ pcb_t *outChild(pcb_t* p){
   return p;
 }
 
+/*
+  Funzione per contare il numero di figli di un processo.
+*/
 
+int count_children(pcb_t* p){
+  if(emptyChild(&p->p_child)){
+    return 0;
+  } else {
+     int count = 0;
+    struct list_head *child;
+    list_for_each(child, &p->p_child) {
+        count++;
+    }
+    return count;
+  }
+
+}
