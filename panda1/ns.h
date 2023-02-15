@@ -3,6 +3,7 @@
 #include "pandos_types.h"
 #include "pandos_const.h"
 #include "list.h"
+#include "pcb.h"
 
 static nsd_t ns_Table[NS_TYPE_MAX][MAXPROC];
 //alternativamente, static nsd_t* ns_Table[NS_TYPE_MAX]={ PID_nsd[MAX_PROC] } ?

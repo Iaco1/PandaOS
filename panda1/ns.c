@@ -1,4 +1,4 @@
-#include "ns2.h"
+#include "ns.h"
 
 /*
  Inizializza tutte le liste dei namespace liberi. Questo metodo viene invocato
@@ -37,7 +37,7 @@ nsd_t* allocNamespace(int type){
     /*if there are any free namespaces of the needed type, the first one
     will be allocated and added to the active list*/
     else{ 
-        nsd_t* ns = container_of(ns_Free_h[type].n_link.next, nsd_t, n_link); //prendo il primo ns libero del dato tip
+        nsd_t *ns = container_of(ns_Free_h[type].n_link.next, nsd_t, n_link); //prendo il primo ns libero del dato tip
         list_del(ns_Free_h[type].n_link.next); //lo rimuovo dalla lista dei ns liberi per quel tipo
         list_add_tail(ns, &ns_Active_h[type].n_link); //lo aggiugo alla lista di ns attivi
         return ns;
@@ -56,33 +56,33 @@ void freeNamespace(nsd_t *ns ){
 /*returns true if there are at least n free namespaces of a given type*/
 
 bool check_ns_Free(int type, int n){
-    struct list_head *list=ns_Free_h[type].n_link.next;
-    int i = 0;
-    while(i<n || list == &ns_Free_h[type].n_link){
-        i++;
-        list=list->next;
+    int count = 0;
+    if(!list_empty(&ns_Free_h[type].n_link)){
+        struct list_head *list=ns_Free_h[type].n_link.next;
+        while(count<n || list == &ns_Free_h[type].n_link){
+            count++;
+            list=list->next;
+            }
     }
-    return i>=n;
+    return count>=n;
 }
 
 /*links the process p and all its children to the namespace ns.
     Returns true if it is possible, false otherwise*/
 
 int addNamespace(pcb_t *p, nsd_t *ns){
-    /*struct list_head *list=&p->p_child;
-    int p_children=0;
-    if (p->p_child->next!=p_child){
-
-    //funzione che conta i figli
-
-    }
+    int p_children=count_children()
     int type=ns->n_type;
     if(!check_ns_Free(type, p_children+1)) return false;
+    /*if there are not enough free type_nsd, the program stops here*/
     else{
         p->namespaces[type]=allocNamespace(type);
-
-        //allocazione per ciascun figlio
-
-    }*/
+        struct list_head *child;
+        list_for_each(child, &p->p_child->p_sib) {
+            pcb_t *pc = container_of(&p->p_child->p_sib, pcb_t, p_sib);
+            pc->namespaces[type]=allocNamespace(type);
+            }
+    }
+    return true;
 }
 
