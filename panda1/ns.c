@@ -67,6 +67,22 @@ bool check_ns_Free(int type, int n){
     return count>=n;
 }
 
+
+int count_children(pcb_t* p){
+  if(emptyChild(&p->p_child)){
+    return 0;
+  } else {
+     int count = 0;
+    struct list_head *child;
+    list_for_each(child, &p->p_child) {
+        count++;
+    }
+    return count;
+  }
+
+}
+
+
 /*links the process p and all its children to the namespace ns.
     Returns true if it is possible, false otherwise*/
 
@@ -78,8 +94,9 @@ int addNamespace(pcb_t *p, nsd_t *ns){
     else{
         p->namespaces[type]=allocNamespace(type);
         struct list_head *child;
-        list_for_each(child, &p->p_child->p_sib) {
-            pcb_t *pc = container_of(&p->p_child->p_sib, pcb_t, p_sib);
+        list_for_each(child,  &p->p_child) {
+            pcb_t *pc = container_of( &p->p_child, pcb_t, p_child);
+            //dubbio se vada usato p_child o p_sib
             pc->namespaces[type]=allocNamespace(type);
             }
     }
