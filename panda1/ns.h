@@ -4,17 +4,18 @@
 #include "pandos_const.h"
 #include "list.h"
 #include "pcb.h"
-
+/*Each Namespace is represented by a different index, which corresponds to its type.
+Each time a new Namespace is added, it should be defined in the file pandos_types.h
+and the value of NS_TYPE_LAST should be updated accordingly.
+Here are listed the current Namespaces and their declared type:
+NS_PID 0
+*/
 static nsd_t ns_Table[NS_TYPE_MAX][MAXPROC];
-//alternativamente, static nsd_t* ns_Table[NS_TYPE_MAX]={ PID_nsd[MAX_PROC] } ?
 
-/*array of lists; each index re*/
 static struct list_head ns_Free_h[NS_TYPE_MAX];
 static struct list_head ns_Active_h[NS_TYPE_MAX];
 
-/*each new namespace should be added to the ns_Table array in their own position*/
-//static nsd_t PID_nsd[MAXPROC];
-
+/
 static void initNamespaces();
 nsd_t* getNamespace(pcb_t *p, int type);
 nsd_t* allocNamespace(int type);
