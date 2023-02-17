@@ -33,25 +33,29 @@ void freePcb(pcb_t *p)
   NULL e restituisce l'elemento rimosso.
 */
 
-pcb_t *allocPcb()
-{
-    if(list_empty(&pcbFree_h)){
+pcb_t *allocPcb(void) {
+    if (list_empty(&pcbFree_h)) {
         return NULL;
     } else {
-        /* Rimuovere un elemento da pcbfree_h, salvarlo e poi resistuirlo */
-        //si prende pcbFree_h.next dato che pcbFree_h rappresenta la testa di tutta la lista, noi vogliamo il primo elemento utile
-        pcb_t *tmp = container_of(&pcbFree_h.next, pcb_t, p_list); 
-        list_del(pcbFree_h.next); //stacca l'elemento dalla lista, restano da settare a NULL i puntatori di:
-        //parent, child e sib.
-        INIT_LIST_HEAD(&tmp->p_child); //dato che si tratta di due struct list_head inizializzo due liste vuote
-        INIT_LIST_HEAD(&tmp->p_sib); //ovvero setto i puntatori next e prev a null
-        tmp->p_parent = NULL;
-        tmp->p_time = 0;
-        tmp->p_semAdd = NULL;
-        return tmp;
+        /* Rimuovere un elemento da pcbFree_h, salvarlo e poi resistuirlo */
+        pcb_t *newPcb = container_of(pcbFree_h.next, pcb_t, p_list);
+        list_del(pcbFree_h.next);
+        
+        /* Inizializzare tutti i campi a NULL o ai valori predefiniti */
+        INIT_LIST_HEAD(&newPcb->p_list);
+        newPcb->p_parent = NULL;
+        INIT_LIST_HEAD(&newPcb->p_child);
+        INIT_LIST_HEAD(&newPcb->p_sib);
+        newPcb->p_s = NULL;
+        newPcb->p_time = 0;
+        newPcb->p_semAdd = NULL;
+        for (int i = 0; i < NS_TYPE_MAX; i++) {
+            newPcb->namespaces[i] = NULL;
+        }
+
+        return newPcb;
     }
 }
-
 /*
   Crea una lista di PCB, inizializzandola come lista vuota.
 */
