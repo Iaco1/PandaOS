@@ -15,7 +15,6 @@ static nsd_t ns_Table[NS_TYPE_MAX][MAXPROC];
 static struct list_head ns_Free_h[NS_TYPE_MAX];
 static struct list_head ns_Active_h[NS_TYPE_MAX];
 
-/
 static void initNamespaces();
 nsd_t* getNamespace(pcb_t *p, int type);
 nsd_t* allocNamespace(int type);
@@ -23,7 +22,7 @@ void freeNamespace(nsd_t *ns );
 bool check_ns_Free(int type, int n);
 int addNamespace(pcb_t *p, nsd_t *ns);
 
-
+ 
 
 
 

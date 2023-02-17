@@ -1,5 +1,5 @@
 #include "ns.h"
-
+#include "pcb.h"
 /*
  Inizializza tutte le liste dei namespace liberi. Questo metodo viene invocato
 una volta sola durante l’inizializzazione della struttura dati.
@@ -39,7 +39,7 @@ nsd_t* allocNamespace(int type){
     else{ 
         nsd_t *ns = container_of(ns_Free_h[type].next, nsd_t, n_link); //prendo il primo ns libero del dato type
         list_del(ns_Free_h[type].next); //lo rimuovo dalla lista dei ns liberi per quel tipo
-        list_add_tail(ns.n_link, &ns_Active_h[type]); //lo aggiugo alla lista di ns attivi
+        list_add_tail(&ns->n_link, &ns_Active_h[type]); //lo aggiugo alla lista di ns attivi
         return ns;
     }
 }
@@ -87,7 +87,7 @@ int count_children(pcb_t* p){
     Returns true if it is possible, false otherwise*/
 
 int addNamespace(pcb_t *p, nsd_t *ns){
-    int p_children=count_children()
+    int p_children=count_children(p);
     int type=ns->n_type;
     if(!check_ns_Free(type, p_children+1)) return false;
     /*if there are not enough free type_nsd, the program stops here*/
@@ -102,4 +102,3 @@ int addNamespace(pcb_t *p, nsd_t *ns){
     }
     return true;
 }
-
