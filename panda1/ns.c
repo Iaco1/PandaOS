@@ -51,7 +51,7 @@ nsd_t* allocNamespace(int type){
 void freeNamespace(nsd_t *ns ){
     int type=ns->n_type;
     list_del(&ns->n_link);
-    list_add_tail(ns, &ns_Free_h[type]);
+    list_add_tail(&ns->n_link, &ns_Free_h[type]);
 }
 
 /*returns true if there are at least n free namespaces of a given type*/
