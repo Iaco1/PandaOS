@@ -75,6 +75,16 @@ bool check_ns_Free(int type, int n){
     Returns true if it is possible, false otherwise*/
 
 int addNamespace(pcb_t *p, nsd_t *ns){
+    /*if ns's corresponding ns_Free_h list is empty, then ns 
+    must be inside it's list of Active Namespaces*/
+    if(list_empty(&ns_Free_h[ns->type])) return false;
+    p->namespaces[ns-type]=ns;
+    struct list_head *child;
+    list_for_each(child,  &p->p_child) {
+        pcb_t *pc = container_of( &p->p_child, pcb_t, p_child);
+        pc->Namespaces[ns->type]=ns;
+        }
+/*
     int p_children=count_children(p);
     int type=ns->n_type;
     if(!check_ns_Free(type, p_children+1)) return false;
@@ -87,6 +97,6 @@ int addNamespace(pcb_t *p, nsd_t *ns){
             //dubbio se vada usato p_child o p_sib
             pc->namespaces[type]=allocNamespace(type);
             }
-    }
+    }/*
     return true;
 }
