@@ -5,7 +5,8 @@
 una volta sola durante l’inizializzazione della struttura dati.
 */
 
-static void initNamespaces(){
+void initNamespaces()
+{
     for(int type=0; type<NS_TYPE_MAX; type++){ 
     /*cycle repeated for each type of namespace:
     both Free and active ns_lists are initialized*/
@@ -68,19 +69,6 @@ bool check_ns_Free(int type, int n){
 }
 
 
-int count_children(pcb_t* p){
-  if(emptyChild(&p->p_child)){
-    return 0;
-  } else {
-     int count = 0;
-    struct list_head *child;
-    list_for_each(child, &p->p_child) {
-        count++;
-    }
-    return count;
-  }
-
-}
 
 
 /*links the process p and all its children to the namespace ns.
