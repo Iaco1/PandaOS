@@ -31,30 +31,34 @@ void freePcb(pcb_t *p)
 /*
   Restituisce NULL se la pcbFree_h è vuota, sennò rimuove un elemento dalla pcbFree_h, inizializza tutti i campi a
   NULL e restituisce l'elemento rimosso.
-*/
-
+*/   
 pcb_t *allocPcb(void) {
-    if (list_empty(&pcbFree_h)) {
-        return NULL;
-    } else {
-        /* Rimuovere un elemento da pcbFree_h, salvarlo e poi resistuirlo */
-        pcb_t *newPcb = container_of(pcbFree_h.next, pcb_t, p_list);
-        list_del(pcbFree_h.next);
-        
-        /* Inizializzare tutti i campi a NULL o ai valori predefiniti */
-        INIT_LIST_HEAD(&newPcb->p_list);
-        newPcb->p_parent = NULL;
-        INIT_LIST_HEAD(&newPcb->p_child);
-        INIT_LIST_HEAD(&newPcb->p_sib);
-        newPcb->p_s = NULL;
-        newPcb->p_time = 0;
-        newPcb->p_semAdd = NULL;
-        for (int i = 0; i < NS_TYPE_MAX; i++) {
-            newPcb->namespaces[i] = NULL;
-        }
-
-        return newPcb;
+  if(list_empty(&pcbFree_h)){
+    return NULL;
+  } else {
+    pcb_t *tmp = container_of(pcbFree_h.next, pcb_t, p_list); //tmp punta al primo elemento della lista
+    list_del(pcbFree_h.next); //rimuovo l'elemento dalla lista
+    tmp->p_parent = NULL; //inizializzo tutti i campi a NULL
+    INIT_LIST_HEAD(&tmp->p_child);
+    INIT_LIST_HEAD(&tmp->p_sib);
+    INIT_LIST_HEAD(&tmp->p_list);
+    tmp->p_s.cause = 0;
+    tmp->p_s.entry_hi= 0;
+    tmp->p_s.hi = 0;
+    tmp->p_s.lo = 0;
+    tmp->p_s.pc_epc = 0;
+    tmp->p_s.status = 0;
+    for(int i = 0; i<29; i++){
+      tmp->p_s.gpr[i] = 0;
     }
+    tmp->p_time = 0;
+    tmp->p_semAdd = NULL;
+    for(int i = 0; i < NS_TYPE_MAX; i++){
+        tmp->namespaces[i] = NULL;
+    }
+    return tmp;
+    
+  }
 }
 /*
   Crea una lista di PCB, inizializzandola come lista vuota.
