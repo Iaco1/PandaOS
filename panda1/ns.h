@@ -4,9 +4,9 @@
 #include "pandos_const.h"
 #include "list.h"
 #include "pcb.h"
-/*Each Namespace is represented by a different index, which corresponds to its type.
-Each time a new Namespace is added, it should be defined in the file pandos_types.h
-and the value of NS_TYPE_LAST should be updated accordingly.
+/*Each Namespace is represented inside the ns_Table by a different index, which 
+corresponds to its type. Each time a new Namespace is added, it should be defined in
+the file pandos_types.h and the value of NS_TYPE_LAST should be updated accordingly.
 Here are listed the current Namespaces and their declared type:
 NS_PID 0
 */
