@@ -1,3 +1,5 @@
+#ifndef ASH_H
+#define ASH_H
 #include "pandos_types.h"
 #include "hashtable.h"
 
@@ -23,3 +25,4 @@ pcb_t *outBlocked(pcb_t *p);
 pcb_t *headBlocked(int *semAdd);
 
 void initASH();
+#endif
