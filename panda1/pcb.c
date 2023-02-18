@@ -171,14 +171,14 @@ void insertChild(pcb_t *prnt,pcb_t *p)
 */
 
 pcb_t* removeChild(pcb_t *p){
- if(emptyChild(&p->p_child)){
-  return NULL;
- } else {
-  pcb_t *child_1 = list_first_entry(&p->p_child, pcb_t, p_sib);
-  list_del(&child_1->p_sib);
-  child_1->p_parent = NULL;
-  return child_1;
- }
+  if(emptyChild(p)){
+    return NULL;
+  } else {
+    pcb_t *tmp = container_of(p->p_child.next, pcb_t, p_sib); //tmp punta al primo figlio di p
+    list_del(p->p_child.next); //rimuovo il primo figlio di p
+    tmp->p_parent = NULL; //setto il padre di tmp a NULL
+    return tmp;
+  }
 }
 
 /*
