@@ -81,8 +81,7 @@ int addNamespace(pcb_t *p, nsd_t *ns){
     p->namespaces[ns->n_type]=ns;
     struct list_head *child;
     list_for_each(child,  &p->p_child) {
-        pcb_t *pc = container_of(&p->p_child, pcb_t, p_sib);
+        pcb_t *pc = container_of( child, pcb_t, p_child);
         pc->namespaces[ns->n_type]=ns;
         }
-    return true;
 }
