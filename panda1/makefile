@@ -42,4 +42,4 @@ kernel: $(OBJS)
 	$(CC) $(CFLAGS) $<
 
 clean:
-	rm -f kernel $(OBJS)
+	rm -f kernel $(OBJS) kernel.core.umps disk0.umps term0.umps kernel.stab.umps
