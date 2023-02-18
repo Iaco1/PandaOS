@@ -154,7 +154,9 @@ int emptyChild( pcb_t *p){
 void insertChild(pcb_t *prnt,pcb_t *p)
 {
  p->p_parent = prnt; 
- list_add_tail(&p->p_sib, &prnt->p_child); 
+  list_add_tail(&p, &prnt->p_child); 
+
+ //list_add_tail(&p->p_sib, &prnt->p_child); 
 }
 
 /*
