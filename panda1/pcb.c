@@ -116,7 +116,7 @@ pcb_t* removeProcQ(struct list_head* head)
     return NULL;
   } else {
     pcb_t* tmp = container_of(head->next, pcb_t, p_list); 
-    list_del(tmp);
+    list_del(head->next);
     return tmp;
   }
 }
