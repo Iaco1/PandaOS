@@ -1,0 +1,4 @@
+panda1/*.o
+panda1/kernel
+panda1/*.umps
+panda1/mchcnfg
