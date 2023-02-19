@@ -97,7 +97,7 @@ void insertProcQ(struct list_head* head, pcb_t *p)
 
 pcb_t* headProcQ(struct list_head* head)
 {
-    if(list_empty(head)){ 
+    if(emptyProcQ(head)){ 
       return NULL; 
     } else {
         pcb_t *tmp = container_of(head->next, pcb_t, p_list); 
@@ -186,19 +186,4 @@ pcb_t *outChild(pcb_t* p){
   p->p_parent = NULL;  
   return p;
 }
-/*
-  Counts the number of children of the given pcb and returns it.
-*/
 
-int count_children(pcb_t* p){
-  if(emptyChild(p)){
-    return 0;
-  } else {
-     int count = 0;
-    struct list_head *child;
-    list_for_each(child, &p->p_child) {
-        count++;
-    }
-    return count;
-  }
-}
