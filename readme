@@ -1,6 +1,21 @@
-Panda OS
-2022-2023 Operating Systems Course Project
+PHASE1:
 
-Davide Iacomino, Cono Cirone, Tiziano Rigosi, Luca Gabellini
+ Per la prima fase di questo progetto sono state implmentate delle funzioni per:
+  -Gestione liste PCB.
+  -Gestione della ASH.
+  -Gestione Namespace.
+  
+ Dipendenze:
+ Per poter eseguire il progetto è necessario aver installato umps3.
+ 
+ Compilazione:
+ Per poter compilare il progetto bisogna utilizzare il comando: 'make'. 
+ Per rimuovere i file creati in seguito alla compilazione si utilizza il comando: 'make clean'.
+ Inoltre, bisogna creare un nuovo simulatore all'interno dell'emulatore umps3 utilizzando i file generati dalla compilazione come configurazione.
+ 
+ Panda OS
+ 2022-2023 Operating Systems Course Project
 
-For all infos official information: https://www.cs.unibo.it/~renzo/so/progetto.shtml
+ Davide Iacomino, Cono Cirone, Tiziano Rigosi, Luca Gabellini
+
+ For all infos official information: https://www.cs.unibo.it/~renzo/so/progetto.shtml
