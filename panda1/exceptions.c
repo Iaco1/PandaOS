@@ -1,4 +1,5 @@
 #include "exceptions.h"
+#include "interrupts.h"
 
 void exception_handler() {
     state_t *svd_excp_state = (state_t*)BIOSDATAPAGE;
@@ -6,7 +7,7 @@ void exception_handler() {
 
         /* Interrupt */
         case 0:
-            // interruptHandler(pcb);
+            interrupt_handler(svd_excp_state->cause);
             break;
 
         /* TLB exception */
