@@ -92,7 +92,7 @@ HIDDEN void syscall_handler() {
             break;
 
         case VERHOGEN:
-            V(current_proc, (int*)a1);
+            V((int*)a1);
             break;
 
         case DOIO: {
@@ -231,10 +231,10 @@ HIDDEN void P(pcb_t* pcb, int *semAddr) {
     }
 }
 
-HIDDEN void V(pcb_t *pcb, int *semAddr) {
+HIDDEN void V(int *semAddr) {
     *semAddr += 1;
     if (headBlocked(semAddr) != NULL) {
-        insertProcQ(ready_list, outBlocked(pcb));
+        insertProcQ(ready_list, removeBlocked(semAddr));
         *semAddr -= 1;
         blocked_count -= 1;
     }

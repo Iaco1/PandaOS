@@ -57,6 +57,6 @@ HIDDEN bool is_device_sem(int* semAdd);
 
 HIDDEN void P(pcb_t *pcb, int *semAddr);
 
-HIDDEN void V(pcb_t *pcb, int *semAddr);
+HIDDEN void V(int *semAddr);
 
 #endif
