@@ -62,14 +62,15 @@ void non_timer_interrupts(int line) {
             // Perform a V operation on the Nucleus maintained semaphore associated with this device
             int sem_index = (line - 3) * 8 + dev_number; // i device sono solo sulle linee da 3 a 7 ed ognuna ne ha 8
             device_sem[sem_index]++;
-            pcb_t *proc = headBlocked(&(device_sem[sem_index])); //prendo il primo processo bloccato sul semaforo
+            //pcb_t *proc = headBlocked(&(device_sem[sem_index])); //prendo il primo processo bloccato sul semaforo
+            V(device_sem[sem_index]);
 
-            if (proc != NULL) {
+            /*f (proc != NULL) {
                 proc->p_semAdd = NULL; //resetto il semaforo
                 proc->p_s.reg_v0 = status;
                 insertProcQ(ready_list, outBlocked(proc)); //inserisco il processo nella ready list
                 device_sem[sem_index]--;
-            }
+            }*/
         }
     }
 
@@ -105,19 +106,20 @@ void terminal_handling()
         //Calculate the address for this device’s device register.
         termreg_t *dev_reg = DEV_REG_ADDR(7, dev_number);
         unsigned int status = 0;
-        //assumo che i primi 4 device siano per la trasmissione e gli altri per la ricezione dato che la trasmissione ha priorità maggiore
-        if(dev_number > 0 && dev_number <= 4){
+        //ogni terminale ha due sub device: receiver e trasmettitore
+        if(dev_reg->transm_status != READY){ //se devo sbloccare un trasmettitore
             status = dev_reg->transm_status; 
             dev_reg->transm_command = ACK;
-        } else {
+        } else { //sennò un receveir
             status = dev_reg -> recv_status;
-            dev_reg->recv_command = ACK;
+             dev_reg->recv_command = ACK; 
         }
 
 
         //Perform a V operation on the Nucleus maintained semaphore associated with this (sub)device
         int sem_index = 4 * 8 + dev_number; //i device sono solo sulle linee da 3 a 7 ed ognuna ne ha 8
-        device_sem[sem_index]++; //incremento il semaforo
+        V(device_sem[sem_index]);
+        /*device_sem[sem_index]++; //incremento il semaforo
         pcb_t  *proc = headBlocked(&(device_sem[sem_index]));  //prendo il primo processo bloccato sul semaforo
 
         if(proc != NULL){
@@ -125,7 +127,7 @@ void terminal_handling()
             proc->p_s.reg_v0 = status;
             insertProcQ(ready_list, outBlocked(proc)); //inserisco il processo nella ready list
             device_sem[sem_index]--; 
-        }
+        }*/
    }
     
     
