@@ -10,9 +10,9 @@ endif
 INCDIR = $(UMPS3_DIR_PREFIX)/include/umps3/umps 
 SUPDIR = $(UMPS3_DIR_PREFIX)/share/umps3
 
-DEFS = pandos_const.h types.h ash.h pcb.h ns.h container_of.h hash.h hashtable_api.h hashtable.h list.h log2.h pandos_types.h $(INCDIR)/libumps.h Makefile #mettere tutti i file h  
+DEFS = pandos_const.h types.h ash.h pcb.h ns.h interrupts.h exceptions.h scheduler.h container_of.h hash.h hashtable_api.h hashtable.h list.h log2.h pandos_types.h $(INCDIR)/libumps.h Makefile #mettere tutti i file h  
 
-OBJS = p1test.o ash.o pcb.o ns.o #tutti i file  .o che servono per compilare. 
+OBJS = p2test.04.o ash.o pcb.o ns.o exceptions.o interrupts.o scheduler.o main.o #tutti i file  .o che servono per compilare. 
 CFLAGS = -ffreestanding -std=gnu99 -Wall -c -mips1 -mabi=32 -mfp32 \-mno-gpopt -G 0 -fno-pic -mno-abicalls 
 #all'inizio di CFLAGS: $@ indica quello a sx dei due punti, 
 
