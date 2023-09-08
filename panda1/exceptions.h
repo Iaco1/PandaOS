@@ -12,6 +12,8 @@ extern struct list_head *ready_list;
 extern pcb_t *current_proc;
 extern int device_sem[DEVICECNT + 1];
 
+void *memcpy(void *dest, const void *src, unsigned int n);
+
 void exception_handler();
 
 HIDDEN void syscall_handler();

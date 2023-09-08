@@ -1,6 +1,11 @@
 #include "exceptions.h"
 #include "interrupts.h"
 
+void *memcpy(void *dest, const void *src, unsigned int n) {
+    for (unsigned int i=0; i < n; i++)
+        ((char*)dest)[i] = ((char*)src)[i];
+}
+
 void exception_handler() {
     state_t *svd_excp_state = (state_t*)BIOSDATAPAGE;
     switch((svd_excp_state->cause & GETEXECCODE) >> 2) {
