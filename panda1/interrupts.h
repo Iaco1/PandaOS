@@ -9,6 +9,7 @@
 #include <umps3/umps/arch.h>
 #include "types.h"
 #include "exceptions.h"
+#include <umps3/umps/cp0.h>
 
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H

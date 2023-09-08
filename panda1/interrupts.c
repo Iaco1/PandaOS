@@ -1,6 +1,13 @@
 #include "interrupts.h"
-
-
+#include <umps3/umps/libumps.h>
+#include "pcb.h"
+#include "pandos_const.h"
+#include "pandos_types.h"
+#include <umps3/umps/arch.h>
+#include "types.h"
+#include "exceptions.h"
+#include <umps3/umps/cp0.h>
+#include "exceptions.h"
 
 void interrupt_handler(unsigned int cause){
         if(cause & LINE_0_MASK){
@@ -8,7 +15,7 @@ void interrupt_handler(unsigned int cause){
             //ignore
         } 
         else if(cause & LINE_1_MASK){
-            plt(BIOSDATAPAGE);
+            plt((state_t*)BIOSDATAPAGE);
         }
         else if(cause & LINE_2_MASK){
             timer_interrupt();
@@ -36,7 +43,7 @@ void plt(state_t *processor_state)
     setTIMER(5); //da testare il valore
     //copy the processor state at the time of the exception into che current process's pcb
     current_proc->p_s = *processor_state;
-    insertProcQ(&(ready_list), current_proc); //insert the process in the ready queue
+    insertProcQ(ready_list, current_proc); //insert the process in the ready queue
     //scheduler(); call the scheduler
 }
 
@@ -51,8 +58,8 @@ void non_timer_interrupts(int line) {
         // Verifico se il dispositivo corrente ha causato un interrupt
         if (bitmap & device_mask) { 
             // Calculate the address for this device's device register.
-            dtpreg_t *dev_reg = DEV_REG_ADDR(line, dev_number);
-
+            int addr = DEV_REG_ADDR(line, dev_number);
+            dtpreg_t *dev_reg = (dtpreg_t *)&((devregarea_t *)RAMBASEADDR)->devreg[line][addr].dtp;
             // Save off the status code from the device's device register
             unsigned int status = dev_reg->status;
 
@@ -63,7 +70,7 @@ void non_timer_interrupts(int line) {
             int sem_index = (line - 3) * 8 + dev_number; // i device sono solo sulle linee da 3 a 7 ed ognuna ne ha 8
             device_sem[sem_index]++;
             //pcb_t *proc = headBlocked(&(device_sem[sem_index])); //prendo il primo processo bloccato sul semaforo
-            V(device_sem[sem_index]);
+            V(&device_sem[sem_index]);
 
             /*f (proc != NULL) {
                 proc->p_semAdd = NULL; //resetto il semaforo
@@ -77,7 +84,7 @@ void non_timer_interrupts(int line) {
     if (current_proc == NULL) 
         scheduler(); //lo scheduler fa una wait
     else
-        LDST(BIOSDATAPAGE);
+        LDST((state_t*)BIOSDATAPAGE);
 }
 
 void timer_interrupt()
@@ -96,7 +103,7 @@ void timer_interrupt()
     device_sem[0] = 0; 
 
     if(current_proc == NULL) scheduler(); //lo scheduler fa una wait
-    else LDST(BIOSDATAPAGE); 
+    else LDST((state_t*)BIOSDATAPAGE); 
 }
 
 void terminal_handling()
@@ -104,7 +111,8 @@ void terminal_handling()
    
    for(int dev_number = 1; dev_number < 9; dev_number++){
         //Calculate the address for this device’s device register.
-        termreg_t *dev_reg = DEV_REG_ADDR(7, dev_number);
+        int addr = DEV_REG_ADDR(7, dev_number); 
+        termreg_t *dev_reg = (termreg_t *)&((devregarea_t *)RAMBASEADDR)->devreg[7][addr].term;
         unsigned int status = 0;
         //ogni terminale ha due sub device: receiver e trasmettitore
         if(dev_reg->transm_status != READY){ //se devo sbloccare un trasmettitore
@@ -118,7 +126,7 @@ void terminal_handling()
 
         //Perform a V operation on the Nucleus maintained semaphore associated with this (sub)device
         int sem_index = 4 * 8 + dev_number; //i device sono solo sulle linee da 3 a 7 ed ognuna ne ha 8
-        V(device_sem[sem_index]);
+        V(&device_sem[sem_index]);
         /*device_sem[sem_index]++; //incremento il semaforo
         pcb_t  *proc = headBlocked(&(device_sem[sem_index]));  //prendo il primo processo bloccato sul semaforo
 
@@ -133,7 +141,7 @@ void terminal_handling()
     
    if(current_proc == NULL)
          scheduler(); //lo scheduler fa una wait
-   else LDST(BIOSDATAPAGE); 
+   else LDST((state_t*)BIOSDATAPAGE); 
 }
 
 
