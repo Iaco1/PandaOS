@@ -31,22 +31,22 @@ all: p2test.umps
 
 # Compilation rules
 %.o: %.c $(DEFS)
-    $(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $<
 
 # Linking rule
 %.t: %.o $(OBJS)
-    $(LD) $(LDAOUTFLAGS) $(LIBDIR)/crti.o $< $(LIBDIR)/libumps.o -o $@
+	$(LD) $(LDAOUTFLAGS) $(LIBDIR)/crti.o $< $(LIBDIR)/libumps.o -o $@
 
 # ELF to UMPS3 binary conversion rule
 %.t.aout.umps: %.t
-    $(EF) -a $<
+	$(EF) -a $<
 
 # Final target rule
 %.umps: %.t.aout.umps
-    $(UDEV) -f $@ $<
+	$(UDEV) -f $@ $<
 
 CFLAGS += -w
 
 clean:
-    rm -f ash.c crtso.o exceptions.h hashtable.h libumps.o main.c ns.h output pandos_types.h types.h ash.h hash.h interrupts.c list.h p2test.04.c pcb.c container_of.h exceptions.c hashtable_api.h interrupts.h log2.h ns.c pandos_const.h pcb.h
+	rm -f ash.c crtso.o exceptions.h hashtable.h libumps.o main.c ns.h output pandos_types.h types.h ash.h hash.h interrupts.c list.h p2test.04.c pcb.c container_of.h exceptions.c hashtable_api.h interrupts.h log2.h ns.c pandos_const.h pcb.h
 
