@@ -14,8 +14,6 @@ extern int device_sem[DEVICECNT + 1];
 
 void exception_handler();
 
-void uTLB_RefillHandler();
-
 HIDDEN void syscall_handler();
 
 /**

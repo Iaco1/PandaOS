@@ -3,6 +3,7 @@
 #include "exceptions.h"
 
 extern void test();
+extern void uTLB_RefillHandler();
 
 int process_count, blocked_count;
 
