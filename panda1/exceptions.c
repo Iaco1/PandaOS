@@ -229,7 +229,7 @@ HIDDEN void P(pcb_t* pcb, int *semAddr) {
     }
 }
 
-HIDDEN void V(int *semAddr) {
+void V(int *semAddr) {
     *semAddr += 1;
     if (headBlocked(semAddr) != NULL) {
         insertProcQ(ready_list, removeBlocked(semAddr));
