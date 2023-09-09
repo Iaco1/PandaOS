@@ -2,6 +2,8 @@
 #define EXCEPTIONS_H
 #include "ns.h"
 #include "ash.h"
+#include "interrupts.h"
+#include "scheduler.h"
 #include <umps3/umps/libumps.h>
 #define PSEUDOCLOCKSEM device_sem[DEVICECNT]
 #define DEVREGBASE 0x10000054
