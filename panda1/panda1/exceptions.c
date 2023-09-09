@@ -15,7 +15,7 @@ void bp25(){}
 void exception_handler() {
     bp20();
     //state_t *svd_excp_state = (state_t*)BIOSDATAPAGE;
-    switch((cagetCAUSE() & GETEXECCODE) >> 2) {
+    switch((getCAUSE() & GETEXECCODE) >> 2) {
 
         /* Interrupt */
         case 0:
