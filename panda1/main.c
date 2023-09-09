@@ -53,7 +53,7 @@ int main() {
     proc->p_parent = NULL;
     proc->p_supportStruct = NULL;
 
-    /* TODO: call scheduler */
+    scheduler();
 
     return 0;
 }
