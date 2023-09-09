@@ -2,21 +2,29 @@
 #include <umps3/umps/libumps.h>
 
 void scheduler(){
-    pcb_t tmp = removeProcQ(ready_list);
-    if (tmp==NULL){
-        if(process_count==0) HALT();
-        if(blocked_count>0){
-            //set Status register to enable interrupts?
-            current_proc->p_s.status.TE=0;
+    pcb_t* tmp = removeProcQ(&ready_list);
+    if (tmp==NULL)
+    {
+        if(process_count==0)
+        {
+            HALT();
+        } 
+        else if(blocked_count>0 && process_count > 0)
+        {
+            /*disable plt*/
+            current_proc = NULL;
+            setSTATUS(IECON | IMON ); 
             WAIT();
         }
-        else //deadlock detected
+        else if(process_count > 0 && blocked_count == 0)
+        {//deadlock detected
         //deadlock detected action: passup or die? kill a pcb?
         PANIC();
+        }
     }
     current_proc=tmp;
 
-    plt(current_proc->p_s);  //plt(5)?
-    LDST(current_proc->p_s);
+    setTIMER(TIMESLICE); //load 5 milliseconds
+    LDST(&current_proc->p_s);
 
 }
