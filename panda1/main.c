@@ -7,7 +7,7 @@ extern void uTLB_RefillHandler();
 
 int process_count, blocked_count;
 
-struct list_head *ready_list;
+struct list_head ready_list;
 
 pcb_t *current_proc;
 
@@ -31,7 +31,7 @@ int main() {
     process_count = 0;
     blocked_count = 0;
 
-    mkEmptyProcQ(ready_list);
+    mkEmptyProcQ(&ready_list);
 
     current_proc = NULL;
 
@@ -44,7 +44,7 @@ int main() {
     /* Starting process instantiation */
     pcb_t *proc = allocPcb();
     process_count += 1;
-    insertProcQ(ready_list,proc);
+    insertProcQ(&ready_list,proc);
     proc->p_s.status ^= (IEPON + IMON + TEBITON); /* Toggle interrupts and local timer */
     RAMTOP(proc->p_s.reg_sp);
     proc->p_s.pc_epc = (memaddr)test;
