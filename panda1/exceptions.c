@@ -224,7 +224,7 @@ HIDDEN void P(pcb_t* pcb, int *semAddr) {
         *semAddr += 1;
 
         blocked_count += 1;
-        /* TODO: call scheduler */
+        scheduler();
     }
 }
 
