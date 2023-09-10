@@ -11,28 +11,48 @@ void bp22(){}
 void bp23(){}
 void bp24(){}
 void bp25(){}
-
+void bp26(){}
+void bp27(){}
+void bp28(){}
+void bp29(){}
+void bp30(){}
+void bp31(){}
+void bp32(){}
+void bp33(){}
+void bp44(){}
+void bp45(){}
+void bp46(){}
+void bp47(){}
+void bp50(){}
+void bp51(){}
+void bp52(){}
+void bp53(){}
+void bp54(){}
+void bp55(){}
+void perr1(){}
+void perr2(){}
+state_t* cached_exc_state;
 void exception_handler() {
     bp20();
-    //state_t *svd_excp_state = (state_t*)BIOSDATAPAGE;
+     cached_exc_state = (state_t*)BIOSDATAPAGE;
+    current_proc ->p_s = *(state_t*)BIOSDATAPAGE;
     switch((getCAUSE() & GETEXECCODE) >> 2) {
-
         /* Interrupt */
         case 0:
-            bp21();
+            bp44();
             interrupt_handler(getCAUSE());
             break;
 
         /* TLB exception */
         case 1: case 2: case 3:
-            bp22();
+            
             pass_up_or_die(PGFAULTEXCEPT);
             break;
 
         /* Program trap */
         case 4: case 5: case 6: case 7:
         case 9: case 10: case 11: case 12:
-            bp23();
+            
             pass_up_or_die(GENERALEXCEPT);
             break;
 
@@ -64,15 +84,16 @@ HIDDEN void syscall_handler() {
         svd_excpt_state->cause |= 1<<2; svd_excpt_state->cause |= 1<<4;
         svd_excpt_state->cause &= ~(1<<1); svd_excpt_state->cause &= ~(1<<3);
         svd_excpt_state->cause &= ~(1<<5);
-
+        bp51();
         pass_up_or_die(GENERALEXCEPT);
     }
+    int a0 = (int)current_proc->p_s.reg_a0;
+    memaddr a1 = current_proc->p_s.reg_a1, a2 = current_proc->p_s.reg_a2, a3 = current_proc->p_s.reg_a3;
 
-    memaddr a0 = current_proc->p_s.reg_a0, a1 = current_proc->p_s.reg_a1,
-            a2 = current_proc->p_s.reg_a2, a3 = current_proc->p_s.reg_a3;
-
+    bp21();
     switch (a0) {
         case CREATEPROCESS: {
+            bp22();
             pcb_t *proc = allocPcb();
             if (proc == NULL) current_proc->p_s.reg_v0 = -1;
             else {
@@ -93,27 +114,32 @@ HIDDEN void syscall_handler() {
         } break;
 
         case TERMPROCESS:
+        bp23();
             a1==0 ? rec_terminate(current_proc) : rec_terminate((pcb_t*)a1);
             /* The process with specified PID is found by addressing at the PID itself. */
             break;
 
         case PASSEREN:
+        bp24();
             P(current_proc, (int*)a1);
             break;
 
         case VERHOGEN:
+        bp25();
             V((int*)a1);
             break;
 
         case DOIO: {
+            bp26();
             int *cmdAddr = (int*)a1; int *cmdValues = (int*)a2;
-
+            
+            bp53();
             int interrupt_line = get_int_line(cmdAddr);
             int *sem = get_dev_sem(cmdAddr);
 
             P(current_proc,sem);
             *cmdAddr = *cmdValues;
-
+            bp54();
             /* Extract status code from the device's device register and return accordingly */
             memaddr status_reg = (memaddr)(cmdAddr-WORDLEN);
             int status = * (int*)status_reg;
@@ -122,21 +148,26 @@ HIDDEN void syscall_handler() {
                 current_proc->p_s.reg_v0 = status==5 ? 0 : -1;
             else
                 current_proc->p_s.reg_v0 = status==1 ? 0 : -1;
+            bp55();
         } break;
 
         case GETTIME:
+        bp27();
             current_proc->p_s.reg_v0 = current_proc->p_time;
             break;
 
         case CLOCKWAIT:
+        bp28();
             P(current_proc, &PSEUDOCLOCKSEM);
             break;
 
         case GETSUPPORTPTR:
+        bp29();
             current_proc->p_s.reg_v0 = (memaddr)current_proc->p_supportStruct;
             break;
 
         case GETPROCESSID:
+        bp30();
             if (a1 == TRUE)
                 current_proc->p_s.reg_v0 = (memaddr)(current_proc->p_parent==NULL ? 0 : current_proc->p_parent->p_pid);
             else
@@ -144,6 +175,7 @@ HIDDEN void syscall_handler() {
             break;
 
         case GETCHILDREN: {
+            bp31();
             int size = (int)a2;
             int *children_pids = (int*)current_proc->p_s.reg_a1;
 
@@ -161,6 +193,7 @@ HIDDEN void syscall_handler() {
         } break;
 
         default: /* SYSCALL 11 or above */
+            bp32();
             pass_up_or_die(GENERALEXCEPT);
     }
 }
@@ -188,14 +221,22 @@ HIDDEN int *get_dev_sem(int *cmdAddr) {
 
 HIDDEN void pass_up_or_die(int excpt) {
     if (current_proc->p_supportStruct == NULL) { // Die
-        rec_terminate(current_proc);
+        bp50();
+        terminate_tot(current_proc);
     } else { // Pass up
         /* Copy the saved exception state in a location accessible to Support Level */
         current_proc->p_supportStruct->sup_exceptState[excpt] = * (state_t*)BIOSDATAPAGE;
         /* Pass control */
         context_t tmp = current_proc->p_supportStruct->sup_exceptContext[excpt];
         LDCXT(tmp.stackPtr,tmp.status,tmp.pc);
+        bp46();
     }
+}
+
+void terminate_tot(){
+    rec_terminate(current_proc);
+    current_proc = NULL;
+    scheduler();
 }
 
 HIDDEN void rec_terminate(pcb_t *pcb) {
@@ -211,7 +252,7 @@ HIDDEN void rec_terminate(pcb_t *pcb) {
 HIDDEN void terminate(pcb_t *pcb) {
     if (pcb!=NULL) {
         outChild(pcb);
-        process_count = process_count - 1;
+        process_count -= 1;
         if (pcb->p_semAdd != NULL && !is_device_sem(pcb->p_semAdd)) {
             *pcb->p_semAdd += 1;
             blocked_count -= 1;
@@ -220,32 +261,38 @@ HIDDEN void terminate(pcb_t *pcb) {
 }
 
 HIDDEN bool is_device_sem(int* semAdd) {
-    for(int i=0; i < DEVICECNT + 1; i = i + 1)
+    for(int i=0; i < DEVICECNT +8 + 1; i = i + 1)
         if (&device_sem[i] == semAdd) return true;
     return false;
 }
 
-HIDDEN void P(pcb_t* pcb, int *semAddr) {
+HIDDEN void P(pcb_t* pcb, int* semAddr) {
     *semAddr -= 1;
     if (*semAddr < 0) {
+        perr1();
         current_proc->p_s.pc_epc += WORDLEN;
         /* Copy the saved processor state into the pcb */
         pcb->p_s = * (state_t*)BIOSDATAPAGE;
         /* TODO: update accumulated CPU time */
-
         insertBlocked(semAddr,pcb);
-        *semAddr += 1;
-
+        semAddr += 1;
         blocked_count += 1;
+
         scheduler();
+    }  else {
+        LDST(cached_exc_state);
+        perr2();
     }
+    
 }
 
 void V(int *semAddr) {
     *semAddr += 1;
-    if (headBlocked(semAddr) != NULL) {
-        insertProcQ(&process_ready_list, removeBlocked(semAddr));
-        *semAddr -= 1;
-        blocked_count -= 1;
+    if(headBlocked(semAddr) != NULL){
+         pcb_t* unlockedPcb = removeBlocked(semAddr);
+         unlockedPcb->p_semAdd = NULL;
+         insertProcQ(&process_ready_list, unlockedPcb);
+         blocked_count-=1;
     }
+  //LDST((state_t*) BIOSDATAPAGE);
 }

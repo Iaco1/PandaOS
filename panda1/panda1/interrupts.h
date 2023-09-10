@@ -27,7 +27,7 @@
 
 extern pcb_t *current_proc;
 extern struct list_head process_ready_list;
-extern int device_sem[DEVICECNT + 1];
+extern int device_sem[DEVICECNT + 8 +1];
 
 
 void interrupt_handler(unsigned int cause);

@@ -121,7 +121,13 @@ ns_p_new_ns();
 extern void p5gen();
 extern void p5mm();
 
-
+void aok6(){}
+void aok7(){}
+void aok8(){}
+void aok9(){}
+void aok10(){}
+void aok11(){}
+void aok12(){}
 /* a procedure to print on terminal 0 */
 void print(char *msg) {
     char     *s       = msg;
@@ -129,14 +135,21 @@ void print(char *msg) {
     devregtr *command = base + 2;
     devregtr  status;
 
+    aok6();
     SYSCALL(PASSEREN, (int)&sem_term_mut, 0, 0); /* P(sem_term_mut) */
+    aok7();
     while (*s != EOS) {
+        aok8();
         devregtr value[2] = {0, PRINTCHR | (((devregtr)*s) << 8)};
+        aok9();
         status         = SYSCALL(DOIO, (int)command, (int)value, 0);
+        aok10();
         if (status != 0 || (value[0] & TERMSTATMASK) != RECVD) {
+            aok11();
             PANIC();
         }
         s++;
+        aok12();
     }
     SYSCALL(VERHOGEN, (int)&sem_term_mut, 0, 0); /* V(sem_term_mut) */
 }
@@ -157,11 +170,21 @@ void uTLB_RefillHandler() {
 /*********************************************************************/
 /*                                                                   */
 /*                 p1 -- the root process                            */
-/*                                                                   */
-void test() {
-    SYSCALL(VERHOGEN, (int)&sem_testsem, 0, 0); /* V(sem_testsem)   */
+/*               
+                                                    */
 
+void aok1(){}
+void aok2(){}
+void aok3(){}
+void aok4(){}
+void aok5(){}
+
+void test() {
+    aok1();
+    SYSCALL(VERHOGEN, (int)&sem_testsem, 0, 0); /* V(sem_testsem)   */
+    aok2();
     print("p1 v(sem_testsem)\n");
+    aok3();
 
     /* set up states of the other processes */
 
@@ -275,10 +298,11 @@ void test() {
     ns2_b_state.pc_epc = ns2_b_state.reg_t9 = (memaddr)ns_p_new_ns;
     ns2_b_state.status                      = ns2_b_state.status | IEPBITON | CAUSEINTMASK | TEBITON;
 
+    aok4();
     /* create process p2 */
     p2pid = SYSCALL(CREATEPROCESS, (int)&p2state, (int)NULL, (int)NULL); /* start p2     */
-
-    print("p2 was started\n");
+    aok5();
+    //print("p2 was started\n");
 
     SYSCALL(VERHOGEN, (int)&sem_startp2, 0, 0); /* V(sem_startp2)   */
     
@@ -318,7 +342,7 @@ void test() {
 
     SYSCALL(PASSEREN, (int)&sem_endp5, 0, 0); /* P(sem_endp5)		*/
 
-    print("p1 knows p5 ended\n");
+    //print("p1 knows p5 ended\n");
 
     SYSCALL(PASSEREN, (int)&sem_blkp4, 0, 0); /* P(sem_blkp4)		*/
 

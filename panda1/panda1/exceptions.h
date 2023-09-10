@@ -12,7 +12,7 @@ extern int process_count;
 extern int blocked_count;
 extern struct list_head process_ready_list;
 extern pcb_t *current_proc;
-extern int device_sem[DEVICECNT + 1];
+extern int device_sem[DEVICECNT + 8 + 1];
 
 void *memcpy(void *dest, const void *src, unsigned int n);
 

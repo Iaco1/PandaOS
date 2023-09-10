@@ -18,44 +18,38 @@ void bp11(void) {}
 
 void scheduler()
 {
-    if(emptyProcQ(&process_ready_list)){
-        //bp11();
-    }
     current_proc = removeProcQ(&process_ready_list);
-    //bp();
+    bp();
     if (current_proc==NULL)
     {
         if(process_count==0)
         {
-            //bp1();
+            bp1();
             HALT();
         } 
         else if(blocked_count>0 && process_count > 0)
         {
             /*disable plt*/
-            //bp5();
-            unsigned int status = getSTATUS();
-            status ^= IECON | IMON;
-            setSTATUS(status); 
-            //bp6();
+            bp5();
+            setSTATUS(IECON | IMON);
+            bp6();
             setTIMER(100000000);
-            //bp7();
+            bp7();
             WAIT();
-            //bp2();
+            bp2();
         }
         else if(process_count > 0 && blocked_count == 0)
         {//deadlock detected
         //deadlock detected action: passup or die? kill a pcb?
-        //bp3();
+        bp3();
         PANIC();
-        //bp10();
+        bp10();
         }
     }
-    
-    //bp4();
+    bp4();
     setTIMER(TIMESLICE);
-    //bp8();
+    bp8();
     /*Load the state of the current process*/
     LDST(&(current_proc->p_s));
-    //bp9();
+    bp9();
 } 

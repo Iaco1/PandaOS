@@ -10,30 +10,47 @@
 #include "exceptions.h"
 
 
+void bp48(void){};
+void okplt(){};
+void oktimerinterrupt(){}
+void oknt3(){}
+void oknt4(){}
+void oknt5(){}
+void oknt6(){}
+void okth(){}
+
 void interrupt_handler(unsigned int cause){
+        bp48();
         if(cause & LINE_0_MASK){
             /*IPI*/
             //ignore
         } 
         else if(cause & LINE_1_MASK){
+            okplt();
             plt((state_t*)BIOSDATAPAGE);
         }
         else if(cause & LINE_2_MASK){
+            oktimerinterrupt();
             timer_interrupt();
         }
         else if(cause & LINE_3_MASK){
+            oknt3();
             non_timer_interrupts(3);
         }
         else if(cause & LINE_4_MASK){
+            oknt4();
             non_timer_interrupts(4);
         }
         else if(cause & LINE_5_MASK){
+            oknt5();
             non_timer_interrupts(5);
         }
         else if(cause & LINE_6_MASK){
+            oknt6();
             non_timer_interrupts(6);
         }
         else if(cause & LINE_7_MASK){
+            okth();
             terminal_handling();
         }
 }
@@ -44,10 +61,11 @@ void bp16(void) {};
 
 void plt(state_t *processor_state)
 {
-    setTIMER(10000000); //da testare il valore
+    setTIMER(TIMESLICE); //da testare il valore
     //copy the processor state at the time of the exception into che current process's pcb
     current_proc->p_s = *processor_state;
     insertProcQ(&process_ready_list, current_proc); //insert the process in the ready queue
+    blocked_count -= 1;
     scheduler(); 
 }
 
@@ -72,15 +90,15 @@ void non_timer_interrupts(int line) {
             // Perform a V operation on the Nucleus maintained semaphore associated with this device
             int sem_index = (line - 3) * 8 + dev_number; // i device sono solo sulle linee da 3 a 7 ed ognuna ne ha 8
             device_sem[sem_index]++;
-            //pcb_t *proc = headBlocked(&(device_sem[sem_index])); //prendo il primo processo bloccato sul semaforo
-            V(&device_sem[sem_index]);
+            pcb_t *proc = removeBlocked(&(device_sem[sem_index])); //prendo il primo processo bloccato sul semaforo
+            
 
-            /*f (proc != NULL) {
+            if (proc != NULL) {
                 proc->p_semAdd = NULL; //resetto il semaforo
                 proc->p_s.reg_v0 = status;
-                insertProcQ(ready_list, outBlocked(proc)); //inserisco il processo nella ready list
+                insertProcQ(&process_ready_list, proc); //inserisco il processo nella ready list
                 device_sem[sem_index]--;
-            }*/
+            }
         }
     }
 
@@ -93,14 +111,15 @@ void non_timer_interrupts(int line) {
 void timer_interrupt()
 {
     //loading the Interval Timer with a new value: 100 milliseconds
-    LDIT(100);
+    LDIT(PSECOND);
 
     //Unblock ALL pcbs blocked on the Pseudo-clock semaphore. 
-    pcb_t *proc = headBlocked(&(device_sem[0]));
+    pcb_t *proc = removeBlocked(&(device_sem[0]));
     while( proc != NULL){
         proc->p_semAdd = NULL; //resetto il semaforo
-        insertProcQ(&process_ready_list, outBlocked(proc)); //inserisco il processo nella ready list
-        proc = headBlocked((device_sem[0]));
+        insertProcQ(&process_ready_list, proc); //inserisco il processo nella ready list
+        blocked_count -= 1;
+        proc = removeBlocked(&(device_sem[0]));
     }
     //Reset the Pseudo-clock semaphore to zero
     device_sem[0] = 0; 
@@ -129,16 +148,15 @@ void terminal_handling()
 
         //Perform a V operation on the Nucleus maintained semaphore associated with this (sub)device
         int sem_index = 4 * 8 + dev_number; //i device sono solo sulle linee da 3 a 7 ed ognuna ne ha 8
-        V(&device_sem[sem_index]);
-        /*device_sem[sem_index]++; //incremento il semaforo
-        pcb_t  *proc = headBlocked(&(device_sem[sem_index]));  //prendo il primo processo bloccato sul semaforo
+        device_sem[sem_index]++; //incremento il semaforo
+        pcb_t  *proc = removeBlocked(&(device_sem[sem_index]));  //prendo il primo processo bloccato sul semaforo
 
         if(proc != NULL){
             proc->p_semAdd = NULL; //resetto il semaforo
             proc->p_s.reg_v0 = status;
-            insertProcQ(ready_list, outBlocked(proc)); //inserisco il processo nella ready list
+            insertProcQ(&process_ready_list, proc); //inserisco il processo nella ready list
             device_sem[sem_index]--; 
-        }*/
+        }
    }
     
     
