@@ -25,9 +25,9 @@
 #define LINE_7_MASK CAUSE_IP(IL_TERMINAL)
 
 
-extern pcb_t *current_proc;
-extern struct list_head *ready_list;
-extern int device_sem[DEVICECNT + 1];
+extern pcb_t *cur_proc;
+extern struct list_head ready_queue;
+extern int device_sem[];
 
 
 void interrupt_handler(unsigned int cause);

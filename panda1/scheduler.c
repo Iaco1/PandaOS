@@ -1,30 +1,26 @@
 #include "scheduler.h"
-#include <umps3/umps/libumps.h>
 
-void scheduler(){
-    pcb_t* tmp = removeProcQ(&ready_list);
-    if (tmp==NULL)
-    {
-        if(process_count==0)
-        {
+void scheduler() {
+    cur_proc = removeProcQ(&ready_queue);
+
+    if (cur_proc == NULL) {
+        if (proc_count == 0)
             HALT();
-        } 
-        else if(blocked_count>0 && process_count > 0)
-        {
-            /*disable plt*/
-            current_proc = NULL;
-            setSTATUS(IECON | IMON ); 
+
+        else if (proc_count > 0 && softblock_count > 0) {
+            unsigned int status = getSTATUS();
+            interrupts_on(&status);
+            plt_off(&status);
+            setSTATUS(status);
+
             WAIT();
+            scheduler();
         }
-        else if(process_count > 0 && blocked_count == 0)
-        {//deadlock detected
-        //deadlock detected action: passup or die? kill a pcb?
-        PANIC();
-        }
+
+        else if (proc_count > 0 && softblock_count == 0)
+            PANIC();
     }
-    current_proc=tmp;
 
-    setTIMER(TIMESLICE); //load 5 milliseconds
-    LDST(&current_proc->p_s);
-
+    setTIMER(TIMESLICE);
+    LDST(&cur_proc->p_s);
 }

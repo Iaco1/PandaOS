@@ -7,34 +7,33 @@
 #include "types.h"
 #include "exceptions.h"
 #include <umps3/umps/cp0.h>
-#include "exceptions.h"
 
 void interrupt_handler(unsigned int cause){
-        if(cause & LINE_0_MASK){
-            /*IPI*/
-            //ignore
-        } 
-        else if(cause & LINE_1_MASK){
-            plt((state_t*)BIOSDATAPAGE);
-        }
-        else if(cause & LINE_2_MASK){
-            timer_interrupt();
-        }
-        else if(cause & LINE_3_MASK){
-            non_timer_interrupts(3);
-        }
-        else if(cause & LINE_4_MASK){
-            non_timer_interrupts(4);
-        }
-        else if(cause & LINE_5_MASK){
-            non_timer_interrupts(5);
-        }
-        else if(cause & LINE_6_MASK){
-            non_timer_interrupts(6);
-        }
-        else if(cause & LINE_7_MASK){
-            terminal_handling();
-        }
+    if(cause & LINE_0_MASK){
+        /*IPI*/
+        //ignore
+    }
+    else if(cause & LINE_1_MASK){
+        plt((state_t*)BIOSDATAPAGE);
+    }
+    else if(cause & LINE_2_MASK){
+        timer_interrupt();
+    }
+    else if(cause & LINE_3_MASK){
+        non_timer_interrupts(3);
+    }
+    else if(cause & LINE_4_MASK){
+        non_timer_interrupts(4);
+    }
+    else if(cause & LINE_5_MASK){
+        non_timer_interrupts(5);
+    }
+    else if(cause & LINE_6_MASK){
+        non_timer_interrupts(6);
+    }
+    else if(cause & LINE_7_MASK){
+        terminal_handling();
+    }
 }
 
 
@@ -42,21 +41,21 @@ void plt(state_t *processor_state)
 {
     setTIMER(5); //da testare il valore
     //copy the processor state at the time of the exception into che current process's pcb
-    current_proc->p_s = *processor_state;
-    insertProcQ(ready_list, current_proc); //insert the process in the ready queue
+    cur_proc->p_s = *processor_state;
+    insertProcQ(&ready_queue, cur_proc); //insert the process in the ready queue
     //scheduler(); call the scheduler
 }
 
 
 void non_timer_interrupts(int line) {
-    unsigned int bitmap = CDEV_BITMAP_ADDR(line); 
+    unsigned int bitmap = CDEV_BITMAP_ADDR(line);
 
     for (int dev_number = 1; dev_number < 9; dev_number++) {
         // Creare una maschera specifica per il dispositivo corrente
         unsigned int device_mask = 1 << dev_number;
 
         // Verifico se il dispositivo corrente ha causato un interrupt
-        if (bitmap & device_mask) { 
+        if (bitmap & device_mask) {
             // Calculate the address for this device's device register.
             int addr = DEV_REG_ADDR(line, dev_number);
             dtpreg_t *dev_reg = (dtpreg_t *)&((devregarea_t *)RAMBASEADDR)->devreg[line][addr].dtp;
@@ -81,7 +80,7 @@ void non_timer_interrupts(int line) {
         }
     }
 
-    if (current_proc == NULL) 
+    if (cur_proc == NULL)
         scheduler(); //lo scheduler fa una wait
     else
         LDST((state_t*)BIOSDATAPAGE);
@@ -92,35 +91,35 @@ void timer_interrupt()
     //loading the Interval Timer with a new value: 100 milliseconds
     LDIT(100);
 
-    //Unblock ALL pcbs blocked on the Pseudo-clock semaphore. 
+    //Unblock ALL pcbs blocked on the Pseudo-clock semaphore.
     pcb_t *proc = headBlocked(&(device_sem[0]));
     while( proc != NULL){
         proc->p_semAdd = NULL; //resetto il semaforo
-        insertProcQ(ready_list, outBlocked(proc)); //inserisco il processo nella ready list
+        insertProcQ(&ready_queue, outBlocked(proc)); //inserisco il processo nella ready list
         proc = headBlocked(&(device_sem[0]));
     }
     //Reset the Pseudo-clock semaphore to zero
-    device_sem[0] = 0; 
+    device_sem[0] = 0;
 
-    if(current_proc == NULL) scheduler(); //lo scheduler fa una wait
-    else LDST((state_t*)BIOSDATAPAGE); 
+    if(cur_proc == NULL) scheduler(); //lo scheduler fa una wait
+    else LDST((state_t*)BIOSDATAPAGE);
 }
 
 void terminal_handling()
 {
-   
-   for(int dev_number = 1; dev_number < 9; dev_number++){
+
+    for(int dev_number = 1; dev_number < 9; dev_number++){
         //Calculate the address for this device’s device register.
-        int addr = DEV_REG_ADDR(7, dev_number); 
+        int addr = DEV_REG_ADDR(7, dev_number);
         termreg_t *dev_reg = (termreg_t *)&((devregarea_t *)RAMBASEADDR)->devreg[7][addr].term;
         unsigned int status = 0;
         //ogni terminale ha due sub device: receiver e trasmettitore
         if(dev_reg->transm_status != READY){ //se devo sbloccare un trasmettitore
-            status = dev_reg->transm_status; 
+            status = dev_reg->transm_status;
             dev_reg->transm_command = ACK;
         } else { //sennò un receveir
             status = dev_reg -> recv_status;
-             dev_reg->recv_command = ACK; 
+            dev_reg->recv_command = ACK;
         }
 
 
@@ -134,14 +133,13 @@ void terminal_handling()
             proc->p_semAdd = NULL; //resetto il semaforo
             proc->p_s.reg_v0 = status;
             insertProcQ(ready_list, outBlocked(proc)); //inserisco il processo nella ready list
-            device_sem[sem_index]--; 
+            device_sem[sem_index]--;
         }*/
-   }
-    
-    
-   if(current_proc == NULL)
-         scheduler(); //lo scheduler fa una wait
-   else LDST((state_t*)BIOSDATAPAGE); 
-}
+    }
 
+
+    if(cur_proc == NULL)
+        scheduler(); //lo scheduler fa una wait
+    else LDST((state_t*)BIOSDATAPAGE);
+}
 

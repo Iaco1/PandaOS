@@ -1,20 +1,24 @@
 #ifndef EXCEPTIONS_H
 #define EXCEPTIONS_H
-#include "ns.h"
+#include "pandos_const.h"
+#include "pandos_types.h"
+#include "pcb.h"
 #include "ash.h"
-#include "interrupts.h"
 #include "scheduler.h"
+#include "interrupts.h"
 #include <umps3/umps/libumps.h>
-#define PSEUDOCLOCKSEM device_sem[DEVICECNT]
+
+/* Plus 8 subdevices for terminals and 1 for clock */
+#define SEMCOUNT (DEVICECNT + 8 + 1)
+#define PSEUDOCLOCKSEM device_sem[SEMCOUNT]
 #define DEVREGBASE 0x10000054
 
-extern int process_count;
-extern int blocked_count;
-extern struct list_head *ready_list;
-extern pcb_t *current_proc;
-extern int device_sem[DEVICECNT + 1];
+extern pcb_t *cur_proc;
+extern struct list_head ready_queue;
+extern int proc_count, softblock_count;
+extern cpu_t start_tod;
 
-void *memcpy(void *dest, const void *src, unsigned int n);
+cpu_t cur_tod;
 
 void exception_handler();
 
@@ -33,8 +37,6 @@ HIDDEN int get_int_line(int *cmdAddr);
  * @return device semaphore address
  */
 HIDDEN int *get_dev_sem(int *cmdAddr);
-
-//HIDDEN void interruptHandler(pcb_t* pcb);
 
 HIDDEN void pass_up_or_die(int excpt);
 
@@ -57,7 +59,7 @@ HIDDEN void terminate(pcb_t *pcb);
  */
 HIDDEN bool is_device_sem(int* semAdd);
 
-HIDDEN void P(pcb_t *pcb, int *semAddr);
+void P(pcb_t *pcb, int *semAddr);
 
 void V(int *semAddr);
 
